@@ -10,6 +10,7 @@ const DEFAULT_DATA = {
   contacts: {},
   jidAliases: {},
   recentMessages: {},
+  runtimeConfig: {},
   menu: null,
   notifications: [],
   dedup: {
@@ -120,6 +121,7 @@ export class JsonStore {
         contacts: parsed.contacts || {},
         jidAliases: parsed.jidAliases || {},
         recentMessages: parsed.recentMessages || {},
+        runtimeConfig: parsed.runtimeConfig || {},
         menu: mergeMenu(this.defaultMenu, parsed.menu),
         dedup: {
           ...DEFAULT_DATA.dedup,
@@ -306,6 +308,33 @@ export class JsonStore {
 
   listPendingPayments() {
     return Object.values(this.data.payments).filter((payment) => payment.status === 'PENDING');
+  }
+
+  getRuntimeConfig() {
+    return structuredClone(this.data.runtimeConfig || {});
+  }
+
+  async updateRuntimeConfig(path, value) {
+    const parts = String(path || '').split('.').filter(Boolean);
+    if (!parts.length) return this.getRuntimeConfig();
+
+    return this.write((data) => {
+      data.runtimeConfig ||= {};
+      let cursor = data.runtimeConfig;
+      for (const part of parts.slice(0, -1)) {
+        cursor[part] ||= {};
+        cursor = cursor[part];
+      }
+      cursor[parts.at(-1)] = value;
+      return data.runtimeConfig;
+    });
+  }
+
+  async resetRuntimeConfig() {
+    return this.write((data) => {
+      data.runtimeConfig = {};
+      return data.runtimeConfig;
+    });
   }
 
   getMenuConfig() {

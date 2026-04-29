@@ -60,8 +60,10 @@ export class PaymentService {
       `Invoice: ${payment.invoiceId}`,
       `Order: ${order.id}`,
       `Jenis: ${order.type}`,
+      `Nominal: ${formatRupiah(order.productAmount || order.amount)}`,
+      `Fee payment: ${formatRupiah(order.paymentFee || 0)}`,
       `Total bayar: ${formatRupiah(payment.amount)}`,
-      `Metode: ${payment.method}`,
+      `Metode: ${payment.method}${order.paymentChannelName ? ` (${order.paymentChannelName})` : ''}`,
       `Expired: ${formatDateTime(payment.expiredAt)}`,
       ''
     ];
@@ -89,7 +91,7 @@ export class PaymentService {
 
   async handleWebhook({ payload, rawBody, headers }) {
     if (!this.gateway.verifyWebhook(rawBody, headers)) {
-      const error = new Error('Signature callback MustikaPayment tidak valid');
+      const error = new Error('Signature callback Tripay tidak valid');
       error.statusCode = 401;
       throw error;
     }

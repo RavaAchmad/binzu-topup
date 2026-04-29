@@ -1,4 +1,4 @@
-// HTTP endpoint untuk callback MustikaPayment dan simulasi mock.
+// HTTP endpoint untuk callback Tripay dan simulasi mock.
 import express from 'express';
 
 export function startWebhookServer({ config, paymentService, gateway, logger }) {
@@ -14,7 +14,7 @@ export function startWebhookServer({ config, paymentService, gateway, logger }) 
     res.json({ ok: true, service: config.bot.name });
   });
 
-  app.post('/webhooks/mustika', async (req, res) => {
+  async function handleGatewayWebhook(req, res) {
     try {
       const result = await paymentService.handleWebhook({
         payload: req.body,
@@ -23,15 +23,17 @@ export function startWebhookServer({ config, paymentService, gateway, logger }) 
       });
       res.json({ ok: true, result });
     } catch (error) {
-      logger.warn('Webhook MustikaPayment ditolak', error.message);
+      logger.warn('Webhook Tripay ditolak', error.message);
       res.status(error.statusCode || 500).json({
         ok: false,
         message: error.message
       });
     }
-  });
+  }
 
-  app.post('/mock/mustika/:invoiceId/pay', async (req, res) => {
+  app.post('/webhooks/tripay', handleGatewayWebhook);
+
+  async function mockPay(req, res) {
     if (!config.payment.mock) return res.status(404).json({ ok: false });
     const event = gateway.setMockStatus(req.params.invoiceId, 'PAID');
     const result = await paymentService.applyPaymentStatus({
@@ -42,9 +44,9 @@ export function startWebhookServer({ config, paymentService, gateway, logger }) 
       source: 'mock'
     });
     res.json({ ok: true, result });
-  });
+  }
 
-  app.post('/mock/mustika/:invoiceId/expire', async (req, res) => {
+  async function mockExpire(req, res) {
     if (!config.payment.mock) return res.status(404).json({ ok: false });
     const event = gateway.setMockStatus(req.params.invoiceId, 'EXPIRED');
     const result = await paymentService.applyPaymentStatus({
@@ -54,7 +56,10 @@ export function startWebhookServer({ config, paymentService, gateway, logger }) 
       source: 'mock'
     });
     res.json({ ok: true, result });
-  });
+  }
+
+  app.post('/mock/tripay/:invoiceId/pay', mockPay);
+  app.post('/mock/tripay/:invoiceId/expire', mockExpire);
 
   const server = app.listen(config.server.port, () => {
     logger.info(`Webhook server aktif di port ${config.server.port}`);

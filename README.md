@@ -1,6 +1,6 @@
 # Binzu Topup WhatsApp Bot
 
-Bot WhatsApp event-driven untuk auto order, deposit saldo, invoice payment, webhook/polling MustikaPayment, dan auto processing.
+Bot WhatsApp event-driven untuk auto order, deposit saldo, invoice Tripay, fulfillment Digiflazz/Moogold, webhook/polling, dan auto processing.
 
 ## Stack
 
@@ -8,7 +8,7 @@ Bot WhatsApp event-driven untuk auto order, deposit saldo, invoice payment, webh
 - `@whiskeysockets/baileys@7.0.0-rc.9`
 - `baileys_helper@^1.0.6` untuk interactive quick reply dan single select
 - JSON storage ringan di `data/db.json`
-- Express webhook server untuk callback MustikaPayment
+- Express webhook server untuk callback Tripay
 
 ## Jalankan di server
 
@@ -29,26 +29,26 @@ Login WhatsApp:
 1. User kirim pesan atau `/menu`.
 2. Bot kirim menu interactive button: Top Up / Order, Cek Status, Deposit Saldo.
 3. User memilih produk, input ID tujuan, lalu memilih paket.
-4. Bot membuat invoice MustikaPayment dan menyimpan `order_id`, `invoice_id`, status `PENDING`.
+4. Bot membuat invoice Tripay dan menyimpan `order_id`, `invoice_id`, status `PENDING`.
 5. Webhook atau polling mengubah status payment menjadi `PAID`/`EXPIRED`/`FAILED`.
 6. Saat `PAID`, bot menjalankan auto order atau deposit saldo, lalu mengirim notifikasi hasil.
 
-## MustikaPayment
+## Tripay + Digiflazz + Moogold
 
-Karena format publik MustikaPayment bisa berbeda antar merchant, adapter dibuat fleksibel lewat `src/config/settings.js`:
+Konfigurasi utama ada di `src/config/settings.js`.
 
-- `MUSTIKA_BASE_URL`
-- `MUSTIKA_CREATE_PATH`
-- `MUSTIKA_STATUS_PATH`
-- `MUSTIKA_API_KEY`
-- `MUSTIKA_API_SECRET`
-- `MUSTIKA_WEBHOOK_SECRET`
+- `payment`: Tripay API key, private key, merchant code, channel, sandbox/production.
+- `providers.digiflazz`: username, API key, endpoint transaksi.
+- `providers.moogold`: partner ID, secret, endpoint order.
+- `pricing`: strategi tax/fee dan provider termurah.
 
 Mode live melakukan request HTTP nyata dengan mengubah `payment.mock` menjadi `false`:
 
 ```js
 payment: {
-  mock: false
+  gateway: 'tripay',
+  mock: false,
+  mode: 'production'
 }
 ```
 
@@ -63,9 +63,11 @@ payment: {
 Endpoint test mock:
 
 ```bash
-POST http://localhost:3000/mock/mustika/{invoiceId}/pay
-POST http://localhost:3000/mock/mustika/{invoiceId}/expire
+POST http://localhost:3000/mock/tripay/{invoiceId}/pay
+POST http://localhost:3000/mock/tripay/{invoiceId}/expire
 ```
+
+Produk di `src/data/products.js` punya beberapa `sources`. Jika satu paket punya source Digiflazz dan Moogold, bot memilih provider dengan estimasi cost + tax paling murah saat `fulfillmentStrategy=cheapest`.
 
 ## Command owner untuk menu
 
@@ -81,6 +83,27 @@ Nomor owner diset di `src/config/settings.js`.
 .setquick Order|menu:order,Status|menu:status,Deposit|menu:deposit
 .resetmenu
 ```
+
+## Command owner untuk tax/fee
+
+```text
+.pricing
+.setpricing paymentStrategy|cheapest
+.setpricing paymentStrategy|manual
+.setpricing manualPaymentChannel|QRIS2
+.setpricing allowedPaymentChannels|QRIS2,QRISC,BRIVA
+.setpricing passPaymentFeeToCustomer|true
+.setpricing fulfillmentStrategy|cheapest
+.setpricing fulfillmentStrategy|manual
+.setpricing manualFulfillmentProvider|digiflazz
+.setpricing providerTax.digiflazz.flat|0
+.setpricing providerTax.digiflazz.percent|0
+.setpricing providerTax.moogold.flat|0
+.setpricing providerTax.moogold.percent|0
+.resetpricing
+```
+
+Default-nya bot memilih channel Tripay dengan fee termurah dan provider fulfillment dengan cost + tax termurah.
 
 Aksi menu yang tersedia:
 
@@ -127,17 +150,17 @@ Jika muncul `bad mac`, biarkan retry Baileys berjalan dulu. Reset session hanya 
 
 ## Webhook
 
-Set webhook MustikaPayment ke:
+Set webhook Tripay ke:
 
 ```text
-POST https://domain-anda.com/webhooks/mustika
+POST https://domain-anda.com/webhooks/tripay
 ```
 
-Jika MustikaPayment mengirim signature HMAC SHA-256, isi di `src/config/settings.js`:
+Tripay callback signature divalidasi memakai private key:
 
 ```js
-webhookSecret: 'secret_dari_gateway',
-signatureHeader: 'x-mustika-signature'
+privateKey: 'private_key_tripay',
+signatureHeader: 'x-callback-signature'
 ```
 
 ## Struktur
@@ -148,7 +171,7 @@ src/
   config/          konfigurasi hardcoded dan override env opsional
   core/            koneksi Baileys, parser, router, interactive button
   data/            contoh katalog produk
-  integrations/    adapter MustikaPayment
+  integrations/    adapter Tripay, Digiflazz, Moogold
   server/          webhook HTTP server
   services/        order, deposit, payment, fulfillment, notification
   storage/         JSON lightweight DB

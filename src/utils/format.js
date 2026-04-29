@@ -26,8 +26,8 @@ export function sanitizeText(input, max = 80) {
 export function normalizeStatus(status) {
   const upper = String(status || '').toUpperCase();
   if (['PAID', 'SUCCESS', 'SETTLED', 'COMPLETED'].includes(upper)) return 'PAID';
-  if (['EXPIRED', 'TIMEOUT'].includes(upper)) return 'EXPIRED';
-  if (['FAILED', 'CANCELLED', 'CANCELED', 'ERROR'].includes(upper)) return 'FAILED';
+  if (['EXPIRED', 'TIMEOUT', 'REFUND', 'REFUNDED'].includes(upper)) return 'EXPIRED';
+  if (['FAILED', 'CANCELLED', 'CANCELED', 'ERROR', 'FAIL'].includes(upper)) return 'FAILED';
   if (['PROCESSING'].includes(upper)) return 'PROCESSING';
   return 'PENDING';
 }

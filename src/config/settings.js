@@ -39,21 +39,65 @@ export const SETTINGS = {
   },
   server: {
     port: 3000,
-    publicWebhookUrl: 'https://domain-anda.com/webhooks/mustika'
+    publicWebhookUrl: 'https://domain-anda.com/webhooks/tripay'
+  },
+  pricing: {
+    paymentStrategy: 'cheapest',
+    fulfillmentStrategy: 'cheapest',
+    manualPaymentChannel: 'QRIS2',
+    manualFulfillmentProvider: 'digiflazz',
+    passPaymentFeeToCustomer: true,
+    providerTax: {
+      digiflazz: { flat: 0, percent: 0 },
+      moogold: { flat: 0, percent: 0 }
+    }
   },
   payment: {
+    gateway: 'tripay',
     mock: true,
-    baseUrl: 'https://api.mustikapayment.example',
-    apiKey: 'ISI_API_KEY_MUSTIKA',
-    apiSecret: 'ISI_API_SECRET_MUSTIKA',
-    createPath: '/transactions',
-    statusPath: '/transactions/{invoiceId}',
-    signatureHeader: 'x-mustika-signature',
-    webhookSecret: 'ISI_WEBHOOK_SECRET_MUSTIKA',
+    mode: 'sandbox',
+    sandboxBaseUrl: 'https://tripay.co.id/api-sandbox',
+    productionBaseUrl: 'https://tripay.co.id/api',
+    merchantCode: 'T0001',
+    apiKey: 'ISI_API_KEY_TRIPAY',
+    privateKey: 'ISI_PRIVATE_KEY_TRIPAY',
+    createPath: '/transaction/create',
+    detailPath: '/transaction/detail',
+    channelPath: '/merchant/payment-channel',
+    instructionPath: '/payment/instruction',
+    signatureHeader: 'x-callback-signature',
+    callbackEventHeader: 'x-callback-event',
+    allowedChannels: ['QRIS2', 'QRISC', 'QRIS', 'BRIVA', 'BNIVA', 'MANDIRIVA', 'PERMATAVA', 'INDOMARET'],
+    fallbackChannel: 'QRIS2',
+    feeCacheTtlMs: 10 * 60 * 1000,
     pollingEnabled: true,
     pollIntervalMs: 30000,
     invoiceTtlMinutes: 15,
     mockAutoPaySeconds: 0
+  },
+  providers: {
+    digiflazz: {
+      enabled: true,
+      mock: true,
+      username: 'ISI_USERNAME_DIGIFLAZZ',
+      apiKey: 'ISI_API_KEY_DIGIFLAZZ',
+      baseUrl: 'https://api.digiflazz.com/v1',
+      transactionPath: '/transaction',
+      priceListPath: '/price-list',
+      testing: true,
+      callbackUrl: ''
+    },
+    moogold: {
+      enabled: true,
+      mock: true,
+      partnerId: 'ISI_PARTNER_ID_MOOGOLD',
+      secret: 'ISI_SECRET_MOOGOLD',
+      baseUrl: 'https://moogold.com/wp-json/v1/api',
+      orderPath: '/order/create_order',
+      productPath: '/product/list_product',
+      orderStatusPath: '/order/order_detail',
+      currency: 'IDR'
+    }
   },
   order: {
     cooldownMs: 15000

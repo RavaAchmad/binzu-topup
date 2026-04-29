@@ -24,7 +24,7 @@ function resolveFromRoot(value) {
 }
 
 export function loadConfig() {
-  const mockPayment = bool(process.env.MUSTIKA_MOCK, SETTINGS.payment.mock);
+  const mockPayment = bool(process.env.PAYMENT_MOCK, SETTINGS.payment.mock);
 
   return {
     rootDir,
@@ -78,17 +78,37 @@ export function loadConfig() {
     payment: {
       ...SETTINGS.payment,
       mock: mockPayment,
-      baseUrl: process.env.MUSTIKA_BASE_URL || SETTINGS.payment.baseUrl,
-      apiKey: process.env.MUSTIKA_API_KEY || SETTINGS.payment.apiKey,
-      apiSecret: process.env.MUSTIKA_API_SECRET || SETTINGS.payment.apiSecret,
-      createPath: process.env.MUSTIKA_CREATE_PATH || SETTINGS.payment.createPath,
-      statusPath: process.env.MUSTIKA_STATUS_PATH || SETTINGS.payment.statusPath,
-      signatureHeader: (process.env.MUSTIKA_SIGNATURE_HEADER || SETTINGS.payment.signatureHeader).toLowerCase(),
-      webhookSecret: process.env.MUSTIKA_WEBHOOK_SECRET || SETTINGS.payment.webhookSecret,
+      mode: process.env.TRIPAY_MODE || SETTINGS.payment.mode,
+      sandboxBaseUrl: process.env.TRIPAY_SANDBOX_BASE_URL || SETTINGS.payment.sandboxBaseUrl,
+      productionBaseUrl: process.env.TRIPAY_PRODUCTION_BASE_URL || SETTINGS.payment.productionBaseUrl,
+      merchantCode: process.env.TRIPAY_MERCHANT_CODE || SETTINGS.payment.merchantCode,
+      apiKey: process.env.TRIPAY_API_KEY || SETTINGS.payment.apiKey,
+      privateKey: process.env.TRIPAY_PRIVATE_KEY || SETTINGS.payment.privateKey,
+      signatureHeader: (process.env.TRIPAY_SIGNATURE_HEADER || SETTINGS.payment.signatureHeader).toLowerCase(),
       pollingEnabled: bool(process.env.PAYMENT_POLLING_ENABLED, SETTINGS.payment.pollingEnabled),
       pollIntervalMs: number(process.env.PAYMENT_POLL_INTERVAL_MS, SETTINGS.payment.pollIntervalMs),
       invoiceTtlMinutes: number(process.env.INVOICE_TTL_MINUTES, SETTINGS.payment.invoiceTtlMinutes),
       mockAutoPaySeconds: number(process.env.MOCK_AUTO_PAY_SECONDS, SETTINGS.payment.mockAutoPaySeconds)
+    },
+    pricing: SETTINGS.pricing,
+    providers: {
+      digiflazz: {
+        ...SETTINGS.providers.digiflazz,
+        mock: bool(process.env.DIGIFLAZZ_MOCK, SETTINGS.providers.digiflazz.mock),
+        username: process.env.DIGIFLAZZ_USERNAME || SETTINGS.providers.digiflazz.username,
+        apiKey: process.env.DIGIFLAZZ_API_KEY || SETTINGS.providers.digiflazz.apiKey,
+        baseUrl: process.env.DIGIFLAZZ_BASE_URL || SETTINGS.providers.digiflazz.baseUrl,
+        testing: bool(process.env.DIGIFLAZZ_TESTING, SETTINGS.providers.digiflazz.testing),
+        callbackUrl: process.env.DIGIFLAZZ_CALLBACK_URL || SETTINGS.providers.digiflazz.callbackUrl
+      },
+      moogold: {
+        ...SETTINGS.providers.moogold,
+        mock: bool(process.env.MOOGOLD_MOCK, SETTINGS.providers.moogold.mock),
+        partnerId: process.env.MOOGOLD_PARTNER_ID || SETTINGS.providers.moogold.partnerId,
+        secret: process.env.MOOGOLD_SECRET || SETTINGS.providers.moogold.secret,
+        baseUrl: process.env.MOOGOLD_BASE_URL || SETTINGS.providers.moogold.baseUrl,
+        currency: process.env.MOOGOLD_CURRENCY || SETTINGS.providers.moogold.currency
+      }
     },
     order: {
       ...SETTINGS.order,
@@ -108,14 +128,29 @@ export function loadConfig() {
 }
 
 export function assertConfig(config) {
-  if (!config.payment.mock) {
+  if (!config.payment.mock && config.payment.gateway === 'tripay') {
     const missing = [];
-    if (!config.payment.baseUrl) missing.push('MUSTIKA_BASE_URL');
-    if (!config.payment.apiKey) missing.push('MUSTIKA_API_KEY');
+    if (!config.payment.apiKey) missing.push('TRIPAY_API_KEY');
+    if (!config.payment.privateKey) missing.push('TRIPAY_PRIVATE_KEY');
+    if (!config.payment.merchantCode) missing.push('TRIPAY_MERCHANT_CODE');
     if (!config.server.publicWebhookUrl) missing.push('PUBLIC_WEBHOOK_URL');
 
     if (missing.length) {
-      throw new Error(`Konfigurasi live MustikaPayment belum lengkap: ${missing.join(', ')}`);
+      throw new Error(`Konfigurasi live Tripay belum lengkap: ${missing.join(', ')}`);
     }
+  }
+
+  if (!config.providers.digiflazz.mock) {
+    const missing = [];
+    if (!config.providers.digiflazz.username) missing.push('DIGIFLAZZ_USERNAME');
+    if (!config.providers.digiflazz.apiKey) missing.push('DIGIFLAZZ_API_KEY');
+    if (missing.length) throw new Error(`Konfigurasi live Digiflazz belum lengkap: ${missing.join(', ')}`);
+  }
+
+  if (!config.providers.moogold.mock) {
+    const missing = [];
+    if (!config.providers.moogold.partnerId) missing.push('MOOGOLD_PARTNER_ID');
+    if (!config.providers.moogold.secret) missing.push('MOOGOLD_SECRET');
+    if (missing.length) throw new Error(`Konfigurasi live Moogold belum lengkap: ${missing.join(', ')}`);
   }
 }

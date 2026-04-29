@@ -79,6 +79,7 @@ export class DepositService {
       return;
     }
 
+    const paymentChoice = await ctx.services.pricing.choosePayment(amount);
     const expiresAt = addMinutes(new Date(), this.config.payment.invoiceTtlMinutes).toISOString();
     const order = {
       id: createId('DEP'),
@@ -86,8 +87,11 @@ export class DepositService {
       jid: ctx.jid,
       userJid: ctx.userJid,
       senderJid: ctx.sender,
-      amount,
-      paymentMethod: 'QRIS',
+      productAmount: amount,
+      paymentFee: paymentChoice.fee,
+      amount: paymentChoice.totalAmount,
+      paymentMethod: paymentChoice.channel,
+      paymentChannelName: paymentChoice.channelName,
       description: `Deposit saldo ${formatRupiah(amount)}`,
       status: 'CREATED',
       expiresAt,

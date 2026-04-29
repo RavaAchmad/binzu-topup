@@ -12,6 +12,7 @@ import {
   setMenuCommand,
   setQuickMenuCommand
 } from '../commands/menuAdmin.js';
+import { pricingCommand, resetPricingCommand, setPricingCommand } from '../commands/pricingAdmin.js';
 import { parseIncomingMessage } from './parser.js';
 import { MemoryLocks } from '../utils/locks.js';
 
@@ -26,7 +27,10 @@ const commandList = [
   addMenuCommand,
   deleteMenuCommand,
   setQuickMenuCommand,
-  resetMenuCommand
+  resetMenuCommand,
+  pricingCommand,
+  setPricingCommand,
+  resetPricingCommand
 ];
 
 export class CommandRouter {

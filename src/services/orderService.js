@@ -149,6 +149,8 @@ export class OrderService {
       return;
     }
 
+    const fulfillmentChoice = ctx.services.pricing.chooseFulfillment(variant);
+    const paymentChoice = await ctx.services.pricing.choosePayment(variant.amount);
     const expiresAt = addMinutes(new Date(), this.config.payment.invoiceTtlMinutes).toISOString();
     const order = {
       id: createId('ORD'),
@@ -160,9 +162,19 @@ export class OrderService {
       productName: product.name,
       variantId,
       variantName: variant.name,
+      fulfillmentProvider: fulfillmentChoice.provider,
+      providerSku: fulfillmentChoice.source?.sku || '',
+      providerProductId: fulfillmentChoice.source?.productId || '',
+      providerVariationId: fulfillmentChoice.source?.variationId || '',
+      providerCost: fulfillmentChoice.providerCost,
+      providerTax: fulfillmentChoice.providerTax,
+      totalProviderCost: fulfillmentChoice.totalProviderCost,
       target: flow.target,
-      amount: variant.amount,
-      paymentMethod: 'QRIS',
+      productAmount: variant.amount,
+      paymentFee: paymentChoice.fee,
+      amount: paymentChoice.totalAmount,
+      paymentMethod: paymentChoice.channel,
+      paymentChannelName: paymentChoice.channelName,
       description: `${product.name} - ${variant.name}`,
       status: 'CREATED',
       expiresAt,

@@ -4,9 +4,10 @@ import { formatRupiah } from '../utils/format.js';
 import { nowIso } from '../utils/id.js';
 
 export class FulfillmentService {
-  constructor({ store, notificationService, config, logger }) {
+  constructor({ store, notificationService, providerService, config, logger }) {
     this.store = store;
     this.notificationService = notificationService;
+    this.providerService = providerService;
     this.config = config;
     this.logger = logger;
   }
@@ -29,8 +30,9 @@ export class FulfillmentService {
 
     await this.store.write((data) => {
       const userJid = order.userJid || order.jid;
+      const creditAmount = Number(order.productAmount || order.amount || 0);
       const user = data.users[userJid] || { jid: userJid, balance: 0, createdAt: nowIso() };
-      user.balance = Number(user.balance || 0) + Number(order.amount || 0);
+      user.balance = Number(user.balance || 0) + creditAmount;
       user.updatedAt = nowIso();
       data.users[userJid] = user;
       data.orders[order.id] = {
@@ -44,7 +46,7 @@ export class FulfillmentService {
     await this.notificationService.sendText(order.jid, [
       '✅ Pembayaran berhasil, deposit saldo sudah masuk.',
       `Order: ${order.id}`,
-      `Nominal: ${formatRupiah(order.amount)}`
+      `Nominal: ${formatRupiah(order.productAmount || order.amount)}`
     ].join('\n'));
 
     return this.store.getOrder(order.id);
@@ -64,11 +66,23 @@ export class FulfillmentService {
 
     try {
       const providerResult = await this.runAutoOrder(order);
+      const final = this.isProviderSuccess(providerResult.status);
       await this.store.updateOrder(order.id, {
-        status: 'SUCCESS',
+        status: final ? 'SUCCESS' : 'PROCESSING',
         providerReference: providerResult.reference,
-        fulfilledAt: nowIso()
+        providerStatus: providerResult.status,
+        fulfilledAt: final ? nowIso() : undefined
       });
+
+      if (!final) {
+        await this.notificationService.sendText(order.jid, [
+          'Pesanan sudah dikirim ke provider dan sedang diproses.',
+          `Order: ${order.id}`,
+          `Provider: ${providerResult.provider || order.fulfillmentProvider || 'provider'}`,
+          `Ref: ${providerResult.reference || '-'}`
+        ].join('\n'));
+        return this.store.getOrder(order.id);
+      }
 
       await this.notificationService.sendText(order.jid, [
         'Pesanan selesai.',
@@ -93,7 +107,16 @@ export class FulfillmentService {
     return this.store.getOrder(order.id);
   }
 
+  isProviderSuccess(status) {
+    const value = String(status || '').toUpperCase();
+    return ['SUCCESS', 'SUKSES', 'COMPLETED', 'DONE', 'PAID'].includes(value);
+  }
+
   async runAutoOrder(order) {
+    if (this.providerService && order.fulfillmentProvider && order.fulfillmentProvider !== 'mock') {
+      return this.providerService.createOrder(order);
+    }
+
     if (this.config.autoOrder.mode !== 'live') {
       await new Promise((resolve) => setTimeout(resolve, this.config.autoOrder.simulatedDelayMs));
       return {

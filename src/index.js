@@ -2,12 +2,16 @@
 import { loadConfig, assertConfig } from './config/env.js';
 import { createLogger } from './utils/logger.js';
 import { JsonStore } from './storage/jsonStore.js';
-import { MustikaPayment } from './integrations/mustikaPayment.js';
+import { TripayPayment } from './integrations/tripayPayment.js';
+import { DigiflazzClient } from './integrations/digiflazzClient.js';
+import { MoogoldClient } from './integrations/moogoldClient.js';
 import { NotificationService } from './services/notificationService.js';
 import { FulfillmentService } from './services/fulfillmentService.js';
+import { FulfillmentProviderService } from './services/fulfillmentProviderService.js';
 import { PaymentService } from './services/paymentService.js';
 import { MenuService } from './services/menuService.js';
 import { JidService } from './services/jidService.js';
+import { PricingService } from './services/pricingService.js';
 import { OrderService } from './services/orderService.js';
 import { DepositService } from './services/depositService.js';
 import { StatusService } from './services/statusService.js';
@@ -29,9 +33,24 @@ const notificationService = new NotificationService({
   logger: createLogger('notify')
 });
 
-const gateway = new MustikaPayment({
+const gateway = new TripayPayment({
   config,
-  logger: createLogger('mustika')
+  logger: createLogger('tripay')
+});
+
+const digiflazz = new DigiflazzClient({
+  config,
+  logger: createLogger('digiflazz')
+});
+
+const moogold = new MoogoldClient({
+  config,
+  logger: createLogger('moogold')
+});
+
+const providerService = new FulfillmentProviderService({
+  digiflazz,
+  moogold
 });
 
 const jidService = new JidService({
@@ -42,6 +61,7 @@ const jidService = new JidService({
 const fulfillmentService = new FulfillmentService({
   store,
   notificationService,
+  providerService,
   config,
   logger: createLogger('fulfillment')
 });
@@ -57,6 +77,7 @@ const paymentService = new PaymentService({
 
 const services = {
   jid: jidService,
+  pricing: new PricingService({ store, config, paymentGateway: gateway, logger: createLogger('pricing') }),
   menu: new MenuService({ store, config }),
   order: new OrderService({ store, paymentService, config }),
   deposit: new DepositService({ store, paymentService, config }),
