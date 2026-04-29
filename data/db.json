@@ -1,0 +1,13 @@
+{
+  "users": {},
+  "orders": {},
+  "payments": {},
+  "contacts": {},
+  "jidAliases": {},
+  "recentMessages": {},
+  "menu": null,
+  "notifications": [],
+  "dedup": {
+    "messages": {}
+  }
+}

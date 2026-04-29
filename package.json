@@ -1,0 +1,25 @@
+{
+  "name": "binzu-topup-whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Bot WhatsApp top up/order + deposit berbasis Baileys dan MustikaPayment.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "check": "node --check src/index.js",
+    "test:sim": "node scripts/simulate-parser.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "7.0.0-rc.9",
+    "axios": "^1.7.9",
+    "baileys_helper": "^1.0.6",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "pino": "^9.6.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
