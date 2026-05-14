@@ -1,5 +1,5 @@
+/.xm4ze
+README.md
+.continue
+SYSTEM_MAP*
 node_modules/
-.env
-sessions/
-data/*.json.tmp
-*.log

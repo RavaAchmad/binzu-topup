@@ -1,25 +1,114 @@
 {
-  "name": "binzu-topup-whatsapp-bot",
-  "version": "1.0.0",
-  "description": "Bot WhatsApp top up/order + deposit berbasis Baileys dan MustikaPayment.",
-  "type": "module",
-  "main": "src/index.js",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "check": "node --check src/index.js",
-    "test:sim": "node scripts/simulate-parser.js"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "dependencies": {
-    "@whiskeysockets/baileys": "7.0.0-rc.9",
-    "axios": "^1.7.9",
-    "baileys_helper": "^1.0.6",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "pino": "^9.6.0",
-    "qrcode-terminal": "^0.12.0"
-  }
+    "name": "binzu-topup",
+    "version": "6.2.0",
+    "description": "All-in-one WhatsApp bot focused on commerce automation, digital orders, deposits, premium rental, and community management.",
+    "main": "index.js",
+    "type": "module",
+    "directories": {
+        "lib": "lib",
+        "src": "src",
+        "plugins": "plugins"
+    },
+    "scripts": {
+        "start": "node index.js",
+        "test": "node test.js"
+    },
+    "homepage": "https://github.com/RavaAchmad/binzu-topup",
+    "keywords": [
+        "whatsapp-bot",
+        "baileys",
+        "commerce",
+        "payment",
+        "rpg",
+        "webhook"
+    ],
+    "author": {
+        "name": "RavaAchmad"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/RavaAchmad/binzu-topup.git"
+    },
+    "bugs": {
+        "url": "https://github.com/RavaAchmad/binzu-topup/issues"
+    },
+    "engines": {
+        "node": ">=20"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@bochilteam/scraper": "^4.2.4",
+        "@distube/ytdl-core": "github:XM4ZE/ytdl-core",
+        "@google/generative-ai": "npm:@google/generative-ai",
+        "@napi-rs/canvas": "^0.1.54",
+        "@pm2/io": "^6.1.0",
+        "@vitalets/google-translate-api": "^9.2.0",
+        "api-dylux": "^1.3.9",
+        "awesome-phonenumber": "^2.68.0",
+        "axios": "^0.24.0",
+        "baileys": "npm:@whiskeysockets/baileys@7.0.0-rc10",
+        "baileys_helpers": "^1.0.16",
+        "canvas": "^3.1.0",
+        "cfonts": "^2.10.0",
+        "chalk": "^5.0.0",
+        "cheerio": "github:XM4ZE/cheerio",
+        "colors": "1.4.0",
+        "dotenv": "^17.3.1",
+        "emoji-db": "^1.0.10",
+        "express": "^4.21.2",
+        "ffmpeg-static": "^5.3.0",
+        "file-type": "^17.1.1",
+        "fluent-ffmpeg": "^2.1.2",
+        "formdata-node": "^4.3.2",
+        "genshin-db": "npm:genshin-db@latest",
+        "got": "^12.5.3",
+        "https-proxy-agent": "^7.0.6",
+        "human-readable": "^0.2.1",
+        "javascript-obfuscator": "^4.1.0",
+        "jimp": "^1.6.0",
+        "jsdom": "^26.1.0",
+        "lodash": "^4.17.21",
+        "lowdb": "^3.0.0",
+        "md5": "^2.3.0",
+        "mime-types": "^2.1.35",
+        "moment-timezone": "^0.5.33",
+        "mongoose": "^8.9.0",
+        "node-cache": "^5.1.2",
+        "node-cron": "^4.2.1",
+        "node-fetch": "^3.3.2",
+        "node-gtts": "^2.0.2",
+        "node-os-utils": "^1.3.6",
+        "node-schedule": "^2.1.1",
+        "node-webpmux": "^3.1.1",
+        "ocr-space-api-wrapper": "^2.3.0",
+        "pdfkit": "^0.15.0",
+        "perf_hooks": "^0.0.1",
+        "pino": "^7.8.0",
+        "pino-pretty": "^7.5.1",
+        "playwright": "^1.40.0",
+        "proxy-chain": "^2.6.0",
+        "qrcode": "^1.5.0",
+        "qrcode-terminal": "^0.12.0",
+        "readline": "^1.3.0",
+        "remove.bg": "^1.3.0",
+        "similarity": "^1.2.1",
+        "socket.io": "^4.4.1",
+        "socks-proxy-agent": "^8.0.5",
+        "syntax-error": "^1.4.0",
+        "terminal-image": "^2.0.0",
+        "theia-suite": "^0.0.2",
+        "url-regex-safe": "^3.0.0",
+        "yargs": "^17.5.1",
+        "yt-search": "^2.13.1",
+        "ytdlp-nodejs": "^3.4.4"
+    },
+    "optionalDependencies": {
+        "wa-sticker-formatter": "^4.3.2"
+    },
+    "overrides": {
+        "@cacheable/node-cache": "1.7.6",
+        "cacheable": "2.3.4",
+        "@cacheable/memory": "2.0.8",
+        "@cacheable/utils": "2.4.1"
+    }
 }
