@@ -1,7 +1,7 @@
 {
     "name": "binzu-topup",
     "version": "6.2.0",
-    "description": "All-in-one WhatsApp bot focused on commerce automation, digital orders, deposits, premium rental, and community management.",
+    "description": "WhatsApp commerce bot for digital top up orders, deposits, payment-ready flows, premium rental, and community operations.",
     "main": "index.js",
     "type": "module",
     "directories": {
@@ -16,11 +16,16 @@
     "homepage": "https://github.com/RavaAchmad/binzu-topup",
     "keywords": [
         "whatsapp-bot",
+        "whatsapp-commerce",
         "baileys",
+        "topup",
         "commerce",
+        "digital-products",
+        "deposit",
         "payment",
-        "rpg",
-        "webhook"
+        "invoice",
+        "webhook",
+        "community-bot"
     ],
     "author": {
         "name": "RavaAchmad"

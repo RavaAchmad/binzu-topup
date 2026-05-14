@@ -1,8 +1,10 @@
 import { interactiveMsg } from '../lib/buttons.js'
-import { buildStatusMessage } from '../lib/commerce-service.js'
+import { buildOrderDetailMessage, buildStatusMessage } from '../lib/commerce-service.js'
 
-let handler = async (m, { conn, usedPrefix }) => {
-  const view = buildStatusMessage(m.sender, usedPrefix, global.db)
+let handler = async (m, { conn, args, usedPrefix }) => {
+  const view = args[0]
+    ? buildOrderDetailMessage(m.sender, args[0], usedPrefix, global.db)
+    : buildStatusMessage(m.sender, usedPrefix, global.db)
 
   return interactiveMsg(conn, m.chat, {
     text: view.text,
@@ -12,7 +14,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   }, m)
 }
 
-handler.help = ['cekstatus', 'statusorder']
+handler.help = ['cekstatus', 'statusorder [orderId|latest]']
 handler.tags = ['commerce']
 handler.command = /^(cekstatus|statusorder)$/i
 handler.register = false

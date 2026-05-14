@@ -1,8 +1,8 @@
-# BinzuV3 Roadmap
+# Binzu-topup Roadmap
 
 ## Stage 1 - Branding & Stabilization
 
-- Keep repository identity centered on BinzuV3.
+- Keep repository identity centered on Binzu-topup as a commerce-first WhatsApp bot.
 - Remove outdated upstream-facing README messaging.
 - Keep Baileys rc10 compatibility notes visible.
 - Stabilize plugin loading, interactive button fallbacks, broadcast behavior, and participant handling.
@@ -15,6 +15,16 @@
 - Prepare `global.db.data.commerce` for orders, deposits, customers, and settings.
 - Define product categories for Game Top Up, Digital Services, and Premium Bot Access.
 - Keep manual/payment-gateway state explicit so unpaid transactions are never marked successful.
+- Treat RPG, downloader, AI, and general bot features as retention/support modules while commerce remains the main product path.
+
+## Stage 2.5 - Commerce Core V2
+
+- Add reusable sample product catalog data.
+- Add staged order flow: category -> product -> package -> target -> confirmation.
+- Persist confirmed orders in `global.db.data.commerce.orders`.
+- Upgrade status commands to show saved order tracking.
+- Add cancellable order flow for order owners.
+- Keep payment settlement disabled until gateway integration is implemented.
 
 ## Stage 3 - Payment Gateway Integration
 

@@ -1,12 +1,12 @@
-# BinzuV3
+# Binzu-topup
 
-BinzuV3 is an all-in-one WhatsApp bot focused on commerce automation and community management, while still keeping entertainment, utility, AI, downloader, and RPG features as secondary engagement features.
+Binzu-topup is a WhatsApp commerce bot focused on digital product orders, top up flows, deposits, premium/rental monetization, and community operations.
 
-The next chapter of BinzuV3 is clear: Commerce + Community WhatsApp Bot.
+The main product direction is commerce first: order, deposit, payment, status tracking, and reliable WhatsApp operations. RPG, downloader, utility, AI, and game features remain as retention and support modules, not the primary identity.
 
 ## Current Status
 
-BinzuV3 is in a foundation release phase for commerce automation.
+Binzu-topup is in a commerce foundation release phase.
 
 - The existing plugin system, group automation, owner tools, media tools, and RPG features are preserved.
 - Commerce commands are being introduced gradually so the project does not become a risky rewrite.
@@ -15,16 +15,21 @@ BinzuV3 is in a foundation release phase for commerce automation.
 
 ## Product Direction
 
+Chosen product direction:
+
+- Commerce path: order, deposit, payment, invoice/status lifecycle, and operational reliability.
+
 Primary identity:
 
-- WhatsApp Commerce Automation
-- Digital product order flow
-- Deposit and balance flow
-- Premium and rental bot monetization support
-- Community/group automation
-- Interactive menu-first UX
+- WhatsApp commerce automation.
+- Digital product top up/order flow.
+- Deposit and balance flow.
+- Premium and rental bot monetization support.
+- Transaction status and support workflow.
+- Community/group automation around commerce operations.
+- Interactive menu-first UX.
 
-Secondary engagement features:
+Secondary retention features:
 
 - RPG and text-RPG retention systems
 - Downloader and media tools
@@ -38,9 +43,14 @@ Secondary engagement features:
 
 - Interactive `order` / `topup` entry point for product categories.
 - Foundation categories for Game Top Up, Digital Services, and Premium Bot Access.
+- Product catalog browsing for sample top up, digital service, and premium/rental products.
+- Multi-step order draft flow: category -> product -> package -> target input -> confirmation.
+- Confirmed orders are saved in `global.db.data.commerce.orders` with `pending_payment` status.
+- `cancelorder` / `batalorder` can cancel owned orders that are still draft, pending confirmation, or pending payment.
 - `deposit` introduction flow prepared for payment gateway integration.
-- `cekstatus` / `statusorder` foundation for future order and deposit tracking.
+- `cekstatus` / `statusorder` now shows saved order tracking data.
 - Existing premium, rental, store list, QRIS reference, broadcast, and limit flows remain available.
+- Next commerce milestone: invoice creation, verified payment callback, idempotent settlement, and WhatsApp notification.
 
 ### Community Management
 
@@ -67,8 +77,12 @@ Secondary engagement features:
 
 ## Recent Major Updates
 
+- Branding cleanup from legacy multi-feature bot positioning into `binzu-topup` commerce-first positioning.
+- Package metadata now describes commerce automation, digital orders, deposits, premium rental, and community operations.
 - Baileys 7 / rc10 compatibility work around auth state, reconnect, bad-mac/session handling, and LID/PN mapping.
-- Interactive button fallback improvements through `lib/buttons.js`, with native interactive fallback and text fallback.
+- Interactive button fallback improvements through `lib/buttons.js`, with helper-package support, native interactive fallback, and final text fallback.
+- Interactive replies are normalized by `plugins/_templateResponse.js` so button/list selections can route through the same command handler as typed commands.
+- Commerce Core V2 adds real saved order drafts and cancellation while keeping payment settlement disabled.
 - Broadcast handling improvements around owner broadcast flow and webhook promo sending.
 - Participant handling cleanup for group joins, leaves, promote/demote detection, and safer JID resolution.
 - Commerce foundation commands added without replacing the existing plugin architecture.
@@ -79,9 +93,23 @@ Secondary engagement features:
 order / topup
 deposit
 cekstatus / statusorder
+cancelorder / batalorder
 ```
 
-These commands are intentionally foundation-level. They create the entry points and structure for the next commerce milestone, but they do not claim that an unpaid order is complete.
+Order commands now create real stored order records after confirmation. Payment settlement is still not active, so orders stop at `pending_payment` until the payment gateway milestone is implemented.
+
+Example order flow:
+
+```text
+.order
+.order game
+select product
+select package
+send target ID
+confirm order
+.cekstatus
+.cancelorder <orderId>
+```
 
 ## Tech Stack
 
@@ -145,7 +173,7 @@ Example promo payload:
 ```json
 {
   "number": "6281234567890",
-  "message": "Promo BinzuV3"
+  "message": "Promo Binzu-topup"
 }
 ```
 
@@ -155,18 +183,20 @@ See [ROADMAP.md](./ROADMAP.md).
 
 Short version:
 
-1. Branding and stabilization.
-2. Commerce foundation.
-3. Payment gateway integration.
-4. Premium/rental automation.
-5. Admin dashboard and reporting through WhatsApp.
+1. Commerce branding and bot stabilization.
+2. Product catalog and saved order lifecycle.
+3. Payment gateway invoice and callback integration.
+4. Premium/rental automation after verified settlement.
+5. Admin dashboard, transaction reporting, and debug tooling.
 
 ## Technical Notes
 
 - [CHANGELOG.md](./CHANGELOG.md) records the current foundation release.
 - [SYSTEM_MAP.md](./SYSTEM_MAP.md) maps the current architecture and core flows.
 - Commerce logic starts in `lib/commerce-service.js`.
+- Product catalog data starts in `lib/commerce-catalog.js`.
 - Commerce plugin entry points are in `plugins/commerce-order.js`, `plugins/commerce-deposit.js`, and `plugins/commerce-status.js`.
+- Order cancellation is handled by `plugins/commerce-cancelorder.js`.
 
 ## Development Commands
 
@@ -189,6 +219,8 @@ node bot-monitor.js
 
 - Node.js 20+ is recommended.
 - Baileys rc10 is a release candidate; behavior can change around auth state, LID mapping, and interactive messages.
+- Interactive buttons should use `lib/buttons.js` instead of ad-hoc message payloads so helper/native/text fallbacks stay consistent.
+- Button/list replies are expected to become command text through `_templateResponse`; command ids should keep the same prefix style as typed commands.
 - FFmpeg is required for video/audio/sticker features.
 - ImageMagick or GraphicsMagick is required for some image/sticker features.
 - MongoDB/cloud DB modes are opt-in through `--db`.
